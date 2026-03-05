@@ -35,8 +35,9 @@ export default function App() {
     // Принудительная загрузка при монтировании
     loadData();
 
-    // Таймер обновления каждые 2 минуты
-    const interval = setInterval(loadData, 120000); // 120000 мс = 2 минуты
+    //const interval = setInterval(loadData, 120000); // 120000 мс = 2 минуты
+
+    const interval = setInterval(loadData, 3000); // 3000 = 3 секунды
 
     return () => clearInterval(interval);
   }, []);
