@@ -1,26 +1,53 @@
-/**
- * IoT Monitor — Dashboard
- *
- * TODO: Реализовать дашборд мониторинга IoT-датчиков
- *
- * Требования:
- * - Таблица событий: время, sensor_id, location, temperature, humidity, severity, notification_sent
- * - Цвета строк: normal (зелёный), warning (жёлтый), critical (красный)
- * - Фильтры: по severity, по sensor_id, по диапазону дат
- * - Карточки сверху: всего событий, critical за сегодня, последнее событие
- * - Автообновление данных каждые 3 секунды (polling GET /api/events)
- * - Кнопка "Симулировать датчик" — форма для отправки тестового webhook POST /webhooks/sensor
- *
- * Можно использовать: Tailwind, MUI, или чистый CSS — на твой выбор
- */
+import React, { useState, useEffect } from "react";
+import Header from "./components/Header";
+import Filters from "./components/Filters";
+import EventsTable from "./components/EventsTable";
+import SimulateSensor from "./components/SimulateSensor";
+import "./App.css";
 
-function App() {
+// API
+async function fetchEvents() {
+  const res = await fetch("/api/events");
+  if (!res.ok) throw new Error("Ошибка загрузки событий");
+  return res.json();
+}
+
+export default function App() {
+  const [events, setEvents] = useState([]);
+  const [filters, setFilters] = useState({
+    severity: "all",
+    sensor_id: "",
+    dateFrom: "",
+    dateTo: "",
+  });
+
+  // Функция для загрузки данных
+  const loadData = async () => {
+    try {
+      const data = await fetchEvents();
+      setEvents(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    // Принудительная загрузка при монтировании
+    loadData();
+
+    // Таймер обновления каждые 2 минуты
+    const interval = setInterval(loadData, 120000); // 120000 мс = 2 минуты
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div>
+    <div className="app-container">
       <h1>IoT Monitor</h1>
-      <p>TODO: реализовать дашборд</p>
+      <Header events={events} />
+      <Filters filters={filters} setFilters={setFilters} />
+      <EventsTable events={events} filters={filters} />
+      <SimulateSensor />
     </div>
   );
 }
-
-export default App;
