@@ -135,6 +135,7 @@ def process_sensor_event(self, payload: dict):
 
     critical_keys = [k for k, v in severity.items() if v == "critical"]
     notification_sent = False
+    
 
     try:
         # ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: используем ОДИН event loop для всех async операций
