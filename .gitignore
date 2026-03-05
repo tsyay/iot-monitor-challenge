@@ -7,3 +7,4 @@ frontend/build/
 *.egg-info/
 dist/
 pgdata/
+*.env

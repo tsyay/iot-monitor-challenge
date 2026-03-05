@@ -1,20 +1,49 @@
-"""
-Mock Telegram Bot API.
-
-TODO: Реализовать фейковый Telegram Bot API
-- POST /bot{token}/sendMessage — принимает chat_id и text, сохраняет в память
-- GET /bot{token}/messages — возвращает список отправленных сообщений (для отладки)
-- 10% запросов sendMessage должны возвращать 500 (имитация сбоя)
-
-Подсказка: используй FastAPI, случайные ошибки через random.random()
-"""
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
+import random
 
 app = FastAPI(title="Mock Telegram Bot API")
 
+messages_db = {}
 
-# TODO: реализовать эндпоинты
+class SendMessageRequest(BaseModel):
+    chat_id: int
+    text: str
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.post("/bot{token}/sendMessage")
+async def send_message(token: str, body: SendMessageRequest):
+
+    # 10% вероятность ошибки
+    if random.random() < 0.1:
+        raise HTTPException(status_code=500, detail="Simulated Telegram failure")
+
+    if token not in messages_db:
+        messages_db[token] = []
+
+    message = {
+        "chat_id": body.chat_id,
+        "text": body.text
+    }
+
+    messages_db[token].append(message)
+
+    return {
+        "ok": True,
+        "result": message
+    }
+
+
+@app.get("/bot{token}/messages")
+async def get_messages(token: str) -> List[dict]: 
+    return messages_db.get(token, [])
+
+
+for route in app.routes:
+    print(route.path) 
