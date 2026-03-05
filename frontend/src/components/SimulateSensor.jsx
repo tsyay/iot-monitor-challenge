@@ -28,6 +28,7 @@ export default function SimulateSensor() {
         temperature: parseFloat(temperature),
         humidity: parseFloat(humidity),
         severity,
+        timestamp: new Date().toISOString()
       });
       setMessage("Симуляция отправлена!");
       setSensorId("");
