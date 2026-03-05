@@ -10,5 +10,10 @@ TODO: Реализовать задачу process_sensor_event
 
 from app.tasks import celery_app
 
-
-# TODO: реализовать задачу
+@celery_app.task
+def process_webhook(payload: dict):
+    """
+    Фоновая обработка вебхука.
+    payload — словарь с данными из FastAPI.
+    """
+    print("Processing webhook in Celery:", payload)
