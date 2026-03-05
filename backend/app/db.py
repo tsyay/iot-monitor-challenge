@@ -1,21 +1,18 @@
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-
 DATABASE_URL = "postgresql+asyncpg://postgres:postgres@db:5432/iot_monitor"
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 
-# Создаём асинхронный движок
-engine: AsyncEngine = create_async_engine(
+# ✅ Параметр pool_pre_ping очень важен для asyncpg
+engine = create_async_engine(
     DATABASE_URL,
-    echo=True,            # логирование SQL-запросов
-    future=True,
+    echo=False,
+    pool_pre_ping=True,        # Проверяет соединение перед использованием
+    pool_size=5,               # Ограничить размер пула
+    max_overflow=10,           # Макс. доп. соединений
 )
 
-# Фабрика сессий для async
 AsyncSessionLocal = sessionmaker(
-    bind=engine,
-    expire_on_commit=False,
-    class_=AsyncSession
+    engine, 
+    class_=AsyncSession, 
+    expire_on_commit=False
 )
-
-# Базовый класс для моделей
-Base = declarative_base()
