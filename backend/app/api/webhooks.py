@@ -12,7 +12,7 @@ from datetime import datetime
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from app.tasks.process import process_webhook
+from app.tasks.process import process_sensor_event
 
 router = APIRouter()
 
@@ -27,7 +27,7 @@ class SensorPayload(BaseModel):
 async def webhook_endpoint(payload: SensorPayload):
     try:
         print("Received sensor payload:", payload)
-        task = process_webhook.delay(payload.dict())        
+        task = process_sensor_event.delay(payload.dict())        
         return JSONResponse(content={"status": "accepted", "task_id": task.id})
     except Exception as e:
         return JSONResponse(content={"status": "error", "detail": str(e)}, status_code=400)

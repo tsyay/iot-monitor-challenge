@@ -12,3 +12,5 @@ celery_app.conf.update(
     accept_content=["json"],
     task_track_started=True,
 )
+
+from .process import process_sensor_event
